@@ -16,8 +16,8 @@ from webdriver_manager.chrome import ChromeDriverManager
 from results_parser import parse_results_page
 
 # (0) Constants.
-MAX_ATTEMPTS = 5
-TIMEOUT = 14
+MAX_ATTEMPTS = 3
+TIMEOUT = 60
 OUTPUT_FOLDER_HTML = 'output/html'
 OUTPUT_FOLDER_CSV = 'output/csv'
 
@@ -37,7 +37,7 @@ class Crawler():
         # Start maximized.
         options.add_argument("--start-maximized")
         # Start headless.
-        options.add_argument("--headless")
+        # options.add_argument("--headless")
         # Docker compatibility.
         options.add_argument("--no-sandbox")
         options.add_argument("--disable-dev-shm-usage")
@@ -61,6 +61,11 @@ class Crawler():
         # (3.1) Launch browser then navigate to loto homepage.
         html_results = []
         self.browser.get(self.url)
+        WebDriverWait(self.browser, TIMEOUT).until(
+            expected_conditions.presence_of_element_located(
+                (By.CLASS_NAME, 'products')
+            )
+        )
 
         # (3.2) Locate the button to check results for each loto.
         elements = self.browser.find_elements(By.LINK_TEXT, 'Confira o resultado ›')
@@ -101,6 +106,13 @@ class Crawler():
                     break
                 except TimeoutException:
                     print(f'Attempt {attempts} for {lototitle}, waited for {TIMEOUT} seconds.')
+                    # Close tab and try again.
+                    self.browser.close()
+                    self.browser.switch_to.window(loto_window_handle)
+                    self.browser.execute_script('arguments[0].click()', element)
+                    self.browser.switch_to.window(
+                        self.browser.window_handles[len(self.browser.window_handles) - 1]
+                    )
                     self.browser.refresh()
                 attempts -= 1
             if attempts == 0 and len(self.browser.find_elements(By.TAG_NAME, 'table')) == 0:
