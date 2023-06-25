@@ -38,6 +38,9 @@ class Crawler():
         options.add_argument("--start-maximized")
         # Start headless.
         options.add_argument("--headless")
+        # Docker compatibility.
+        options.add_argument("--no-sandbox")
+        options.add_argument("--disable-dev-shm-usage")
 
         # (2) Create the webdriver object. The first argument is chromedriver path, then options.
         # To resolve the chromedriver path we use the webdriver_manager package.
