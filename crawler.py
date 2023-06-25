@@ -133,6 +133,7 @@ class Crawler():
             with open(filename, 'r', encoding='UTF-8') as file_descriptor:
                 csv_contents = parse_results_page(file_descriptor.read())
             csv_result = html_result.rstrip('.html') + '.csv'
+            csv_result = csv_result.lower().replace(' ', '_').replace('+', '').replace('á', 'a')
             filename = f'{OUTPUT_FOLDER_CSV}/{csv_result}'
             with open(filename, 'w', encoding='UTF-8') as file_descriptor:
                 file_descriptor.write(csv_contents)
